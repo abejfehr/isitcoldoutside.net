@@ -43,13 +43,17 @@ body {
   margin-top:30vh;
 }
 
+p {
+  font-size:3vh;
+}
+
 h1, h2, p {
   margin:4px;
 }
 
 h1#answer {
-  font-size:5vw;
-  height:6vw;
+  font-size:16vh;
+  height:20vh;
 }
 
 h2 {
