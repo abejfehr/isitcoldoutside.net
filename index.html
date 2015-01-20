@@ -1,7 +1,67 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head></head>
-  <body>
-    <p>Hello World!</p>
+  <head>
+    <title>Is it cold outside?</title>
+    <script charset="utf-8" src="js/api.js"></script>
+    <script charset="utf-8">
+    /* Configuration */
+    var config = {
+      API: "wunderground"
+    };
+
+    /* IsItColdOutside
+     *
+     * The bootstrapping function.
+     *
+     * It will modify all the elements on the page and call helper functions as
+     * needed to carry out the estimation of whether or not it's cold outside.
+     */
+    var IsItColdOutside = function() {
+
+      /* Step 1: Get the user's location */
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+
+          /* Step 2: Get the current temperature for the user's location */
+          var temperature = weatherAPI[config["API"]].getTemperature(
+            position.coords.latitude, position.coords.longitude,
+              function(temperature) {
+
+              /* Step 3: Find out whether that temperature is cold or not */
+              var answer = isCold(temperature, position.coords.latitude,
+                position.coords.longitude);
+
+              /* Step 4: Display that to the user */
+              document.getElementById("answer").innerHTML = answer;
+            });
+        });
+      } else {
+        alert("Your browser/device doesn't support geolocation, please enable \
+               it.");
+      }
+    };
+
+    var isCold = function(temp, lat, long) {
+      document.getElementById("tempC").innerHTML = temp;
+
+      if(temp >= 5)
+        return "No";
+      else if(temp < 5)
+        return "Yes";
+      else
+        alert("This site received an invalid response. A team of technically \
+        trained individuals has been disptached to handle the issue.");
+        return "Error";
+    };
+
+
+    </script>
+  </head>
+  <body onload="IsItColdOutside()">
+    <p>Is it cold outside?</p>
+    <h1 id="answer"></h1>
+    <p>The actual temperature is <span id="tempC">%</span>C</p>
+    <h2>About this site</h2>
+    <p>This site's main aim is to answer the question of whether it's chilly out or not.</p>
   </body>
 </html>
