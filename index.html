@@ -1,12 +1,50 @@
 <!DOCTYPE html>
 <html>
+  <!--
+    Is It Cold Outside.net
+    ======================
+
+    This website is designed to give an actual answer to the questions "Is it
+    cold outside?"
+
+    In the future, it will hopefully implement machine learning to keep track of
+    historical weather, location data, and whether or not people think it's
+    warm or not on particular days.
+
+    Using this data, it could construct an idea of whether or not the current
+    temperature is warm or not for your area, and time of year.
+
+    The Problem
+    ===========
+
+    This is important in a case where two users don't agree that a certain
+    temperature is either hot or cold depending on their location or time of
+    year. During the summer in Dubai if it were to become 15 degrees Celsius,
+    they would be cold, although the same temperature would be warm in parts of
+    Scandanavia.
+
+    -5 degrees Celsius may be cold for Canadians during the summer, but in the
+    winter a -5 degree day is fantastic.
+
+    Those cases all need to be accounted for, and this website aims to
+    accomplish that.
+  -->
   <head>
     <title>Is it cold outside?</title>
+    <!-- Yahoo CSS Reset -->
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.18.1/build/cssreset/cssreset-min.css">
+    <!-- My Stylesheet -->
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- Weather API JavaScript -->
     <script charset="utf-8" src="js/api.js"></script>
     <script charset="utf-8">
     /* Configuration */
     var config = {
-      API: "wunderground"
+      API: "wunderground",
+      warmText: "No.",
+      coldText: "Yes.",
+      numWarmPictures: 3,
+      numColdPictures: 4
     };
 
     /* IsItColdOutside
@@ -25,15 +63,21 @@
           /* Step 2: Get the current temperature for the user's location */
           var temperature = weatherAPI[config["API"]].getTemperature(
             position.coords.latitude, position.coords.longitude,
-              function(temperature) {
+            function(temperature) {
 
-              /* Step 3: Find out whether that temperature is cold or not */
-              var answer = isCold(temperature, position.coords.latitude,
-                position.coords.longitude);
+            /* Step 3: Find out whether that temperature is cold or not */
+            var answer = isCold(temperature, position.coords.latitude,
+              position.coords.longitude);
 
-              /* Step 4: Display that to the user */
-              document.getElementById("answer").innerHTML = answer;
-            });
+            /* Step 4: Display that to the user */
+            document.getElementById("answer").className = "shadow center";
+            document.getElementById("answer").innerHTML = answer;
+            document.getElementById("question").className = "shadow center";
+            document.getElementById("temperature").className = "shadow center";
+
+            /* Bonus Points: Change the background to reflect the temperature */
+            setBackground();
+          });
         });
       } else {
         alert("Your browser/device doesn't support geolocation, please enable \
@@ -41,27 +85,55 @@
       }
     };
 
+    /*
+     * isCold(temp, lat, long)
+     *   This function in the future will contain the more complex logic for
+     *   determining whether or not it's cold. It can act as a facade until then
+     */
     var isCold = function(temp, lat, long) {
       document.getElementById("tempC").innerHTML = temp;
 
       if(temp >= 5)
-        return "No";
+        return config["warmText"];
       else if(temp < 5)
-        return "Yes";
+        return config["coldText"];
       else
         alert("This site received an invalid response. A team of technically \
         trained individuals has been disptached to handle the issue.");
         return "Error";
     };
 
+    /*
+     * setBackground()
+     *   Gets an image for the background of the screen and sets it to be
+     *   visible. Number of backgrounds available for both warm and cold can be
+     *   configured at the top of this file.
+     */
+    var setBackground = function() {
+      // Get a word to represent the temperature
+      var tempWord = (answer == config["warmText"] ? "warm" : "cold");
+      // Generate an index to use
+      var maxIndex = (tempWord == "warm" ? config["numWarmPictures"] :
+      config["numColdPictures"]);
+      var index = Math.floor((Math.random() * maxIndex) + 1);
+      // Pop it in and make the background opaque
+      document.getElementById("background").style.backgroundImage =
+      "url(../images/" + tempWord + "/" + index + ".jpg)";
+      document.getElementById("background").style.opacity = "1";
+    }
 
     </script>
   </head>
   <body onload="IsItColdOutside()">
-    <p>Is it cold outside?</p>
-    <h1 id="answer"></h1>
-    <p>The actual temperature is <span id="tempC">%</span>C</p>
-    <h2>About this site</h2>
-    <p>This site's main aim is to answer the question of whether it's chilly out or not.</p>
+  <div id="background"></div>
+  <div id="content">
+    <p id="question" class="shadow center">Is it cold outside?</p>
+    <h1 id="answer" class="shadow center loading"></h1>
+    <p id="temperature" class="shadow center hidden">The actual temperature is <span id="tempC">%</span>&deg;C</p>
+    <!--
+    <h2 class="shadow center">About this site</h2>
+    <p class="shadow center">This site's main aim is to answer the question of whether it's chilly out or not.</p>
+    -->
+  </div>
   </body>
 </html>
